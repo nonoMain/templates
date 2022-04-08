@@ -1,0 +1,45 @@
+# Makefile for c/cpp projects
+CC=gcc
+CPPC=g++
+RM=rm -f
+
+BINRELEASE=run.bin
+
+BINDIR=./bin
+OBJDIR=./obj
+HEADERDIR=./inc
+SRCDIR=./src
+RESOURCEDIR=./resource
+
+SRCFILES=$(wildcard $(SRCDIR)/*.c*)
+OBJFILES=$(patsubst $(SRCDIR)%.c*,$(OBJDIR)%.o,$(SRCFILES))
+
+release : init $(BINDIR)/$(BINRELEASE)
+init : $(SRCDIR) $(HEADERDIR) $(RESOURCEDIR) $(OBJDIR) $(BINDIR)
+
+$(BINDIR)/$(BINRELEASE) : $(OBJFILES)
+	$(CPPC) $^ -o $(BINDIR)/$(BINRELEASE)
+
+$(OBJDIR)/%.o : $(SRCDIR)/%.c
+	$(CC) -c $< -o ./$@
+
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp
+	$(CPPC) -c $< -o ./$@
+
+cleanall : clean
+	$(RM) $(BINDIR)/*.bin
+
+clean:
+	$(RM) $(OBJDIR)/*.o
+
+$(SRCDIR):
+	mkdir $@
+$(HEADERDIR):
+	mkdir $@
+$(OBJDIR):
+	mkdir $@
+$(BINDIR):
+	mkdir $@
+$(RESOURCEDIR):
+	mkdir $@
+
