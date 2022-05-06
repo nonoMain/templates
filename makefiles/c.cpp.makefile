@@ -1,0 +1,115 @@
+# Makefile for a C/C++ program
+
+RM=rm -f
+
+# verbose or not
+VERBOSE=0
+
+# Compilers and linker
+CC=gcc
+CFLAGS="-Wall"
+
+CXX=g++
+CXXFLAGS="-Wall"
+
+LINK=g++
+LINKFLAGS= -static
+
+# program executable and the command to run it
+BINFILE=run.bin
+RUN=./run.bin
+
+# external libraries
+EXTERNAL_LIBS=
+
+# project directories
+BINDIR=./bin
+OBJDIR=./obj
+INCDIR=./inc
+SRCDIR=./src
+RESDIR=./res
+LIBOBJDIR=./lib/obj
+LIBINCDIR=./lib/inc
+# list of directories to initialize when running the 'init' target
+DIRS=$(BINDIR) $(OBJDIR) $(INCDIR) $(SRCDIR) $(RESDIR) $(LIBOBJDIR) $(LIBINCDIR)
+
+# project files
+C_SRCFILES=$(wildcard $(SRCDIR)/*.c)
+CXX_SRCFILES=$(wildcard $(SRCDIR)/*.cpp)
+C_OBJFILES=$(patsubst $(SRCDIR)%.c,$(OBJDIR)%.o,$(C_SRCFILES))
+CXX_OBJFILES=$(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%.o,$(CXX_SRCFILES))
+LOCAL_LIB_OBJS=$(wildcard $(LIBOBJDIR)/*.o)
+
+BINTARGET=$(BINDIR)/$(BINFILE)
+
+.PHONY: all init run clean clean-bin help
+.SILENT: clean clean-obj init help
+
+# build and link the executable
+all: $(BINTARGET)
+link: all
+obj: $(C_OBJFILES) $(CXX_OBJFILES)
+# create the project directories
+init:
+	echo "Initializing project (creating directories)"
+	mkdir -p $(DIRS)
+# run the program
+run: all
+	$(RUN)
+# clean object files
+clean: clean-obj
+	echo "Cleaning binary files"
+	$(RM) $(BINDIR)/*.bin
+# clean binfiles
+clean-obj:
+	echo "Cleaning object files"
+	$(RM) $(OBJDIR)/*.o
+# help message
+help:
+	echo "Usage: make [target]"
+	echo "Available targets:"
+	echo "all		compile and link"
+	echo "init		initialize project (create directories)"
+	echo "run		run the program"
+	echo "clean		clean object and binary files"
+	echo "clean-obj	clean object files"
+	echo "help		show this help message"
+
+# make c objects
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@echo "Compiling $@ : ($^)"
+	@$(CC) -c $< -o $@
+# make cpp objects
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@echo "Compiling $@ : ($^)"
+	@$(CXX) -c $< -o $@
+
+# link the program
+$(BINTARGET): $(C_OBJFILES) $(CXX_OBJFILES)
+	@echo "Link all into $(BINTARGET)"
+# listing the files linked if verbose is on
+ifeq ($(VERBOSE),1)
+	@echo "Object files:"
+ifneq ($(strip $(C_OBJFILES)),)
+	@echo "	$(C_OBJFILES)"
+else
+	@echo "	*** no C object files ***"
+endif
+ifneq ($(strip $(CXX_OBJFILES)),)
+	@echo $(CXX_OBJFILES)
+else
+	@echo "	*** no C++ object files ***"
+endif
+	@echo "Libraries:"
+ifneq ($(strip $(EXTERNAL_LIBS)),)
+	@echo $(EXTERNAL_LIBS)
+else
+	@echo "	*** no external libraries ***"
+endif
+ifneq ($(strip $(LOCAL_LIB_OBJS)),)
+	@echo $(LOCAL_LIB_OBJS)
+else
+	@echo "	*** no local libraries ***"
+endif
+endif
+	@$(LINK) $(LINKFLAGS) $(EXTERNAL_LIBS) $(C_OBJFILES) $(CXX_OBJFILES) $(LOCAL_LIB_OBJS) -o $@
