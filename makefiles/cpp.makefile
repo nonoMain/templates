@@ -1,4 +1,11 @@
-# Makefile for a C++ program
+# Makefile for a cpp program
+# How to use:
+# 1. Copy this file to the directory of your project and rename it to Makefile/makefile.
+# 2. Scan over the directory tree and make sure you have all the files you need where you need them.
+# 3. Run make to build the program.
+# Note:
+# the makefile will create a dependency file in the same directory as the object file for
+# each object file, so ideally for each '.c' file there will be a '.o' and a '.d' file.
 
 RM=rm -f
 
@@ -7,7 +14,10 @@ VERBOSE=0
 
 # Compilers and linker
 CXX=g++
-CXXFLAGS="-Wall"
+CXXFLAGS= -Wall
+
+# flags to make the .d files
+DEPFLAGS= -MMD -MP
 
 LINK=g++
 LINKFLAGS= -static
@@ -18,7 +28,6 @@ RUN=./run.bin
 
 # external libraries
 EXTERNAL_LIBS=
-
 # project directories
 BINDIR=./bin
 OBJDIR=./obj
@@ -27,12 +36,17 @@ SRCDIR=./src
 RESDIR=./res
 LIBOBJDIR=./lib/obj
 LIBINCDIR=./lib/inc
+
 # list of directories to initialize when running the 'init' target
 DIRS=$(BINDIR) $(OBJDIR) $(INCDIR) $(SRCDIR) $(RESDIR) $(LIBOBJDIR) $(LIBINCDIR)
 
 # project files
 CXX_SRCFILES=$(wildcard $(SRCDIR)/*.cpp)
+CXX_INCFILES=$(wildcard $(INCDIR)/*.h)
+# object files and their dependencies
 CXX_OBJFILES=$(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%.o,$(CXX_SRCFILES))
+CXX_DEPFILES=$(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%.d,$(CXX_SRCFILES))
+
 LOCAL_LIB_OBJS=$(wildcard $(LIBOBJDIR)/*.o)
 
 BINTARGET=$(BINDIR)/$(BINFILE)
@@ -42,8 +56,6 @@ BINTARGET=$(BINDIR)/$(BINFILE)
 
 # build and link the executable
 all: $(BINTARGET)
-link: all
-obj: $(CXX_OBJFILES)
 # create the project directories
 init:
 	echo "Initializing project (creating directories)"
@@ -70,14 +82,13 @@ help:
 	echo "clean-obj	clean object files"
 	echo "help		show this help message"
 
-# make c objects
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	@echo "Compiling $@ : ($^)"
-	@$(CC) -c $< -o $@
+# compile each file based only on its dependencies
+-include $(CXX_DEPFILES)
+
 # make cpp objects
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@echo "Compiling $@ : ($^)"
-	@$(CXX) -c $< -o $@
+	@echo "Compiling $@ : ($<)"
+	@$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # link the program
 $(BINTARGET): $(CXX_OBJFILES)
@@ -86,9 +97,9 @@ $(BINTARGET): $(CXX_OBJFILES)
 ifeq ($(VERBOSE),1)
 	@echo "Object files:"
 ifneq ($(strip $(CXX_OBJFILES)),)
-	@echo $(CXX_OBJFILES)
+	@echo "	$(CXX_OBJFILES)"
 else
-	@echo "	*** no C++ object files ***"
+	@echo "	*** no cpp object files ***"
 endif
 	@echo "Libraries:"
 ifneq ($(strip $(EXTERNAL_LIBS)),)
