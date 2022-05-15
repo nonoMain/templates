@@ -1,4 +1,4 @@
-# templates
+# templates.git
 This repository contains templates for useful
 files (makefiles, etc')
 
