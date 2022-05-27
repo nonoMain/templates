@@ -92,7 +92,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # link the program
-$(BINTARGET): $(C_OBJFILES)
+$(BINTARGET): $(C_OBJFILES) $(LOCAL_LIB_OBJS)
 	@echo "Link all into $(BINTARGET)"
 # listing the files linked if verbose is on
 ifeq ($(VERBOSE),1)

@@ -85,8 +85,7 @@ help:
 	echo "all		compile and link"
 	echo "init		initialize project (create directories)"
 	echo "run		run the program"
-	echo "clean		clean object and binary files"
-	echo "clean-obj	clean object files"
+	echo "clean		clean object and binary files" echo "clean-obj	clean object files"
 	echo "help		show this help message"
 
 # compile each file based only on its dependencies
@@ -102,7 +101,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # link the program
-$(BINTARGET): $(C_OBJFILES)
+$(BINTARGET): $(C_OBJFILES) $(CXX_OBJFILES) $(LOCAL_LIB_OBJS)
 	@echo "Link all into $(BINTARGET)"
 # listing the files linked if verbose is on
 ifeq ($(VERBOSE),1)
@@ -124,4 +123,4 @@ else
 	@echo "	*** no local libraries ***"
 endif
 endif
-	@$(LINK) $(LINKFLAGS) $(EXTERNAL_LIBS) $(C_OBJFILES) $(LOCAL_LIB_OBJS) -o $@
+	@$(LINK) $(LINKFLAGS) $(EXTERNAL_LIBS) $(C_OBJFILES) $(CXX_OBJFILES) $(LOCAL_LIB_OBJS) -o $@

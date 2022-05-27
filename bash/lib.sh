@@ -80,11 +80,19 @@ echo_error_msg ()
 }
 
 # @brief waits until any key is pressed
-# @usage wait_for_any_key_press
+# @param $1 the text to echo (optional)
 wait_for_any_key_press ()
 {
 	read -n 1 -s -r -p "$1"
 	echo
+}
+
+# @brief check if the given command exists
+# @param $1 the command to check
+# @return 0 if the command exists, 1 otherwise
+does_command_exist ()
+{
+	hash "$1" > /dev/null 2>&1
 }
 
 # @brief prints the git branch name
