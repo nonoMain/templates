@@ -87,6 +87,19 @@ wait_for_any_key_press ()
 	echo
 }
 
+# @brief gets time zone in localtime format for symlinking
+# @return timezone (e.g Asia/Jerusalem)
+get_timezone ()
+{
+	echo $(curl -s https://ipapi.co/timezone)
+}
+
+# @brief sets a symlink for the /etc/localtime for the timezone file returned from 'get_timezone'
+set_timezone ()
+{
+	ln -sf /usr/share/zoneinfo/$(get_timezone) /etc/localtime
+}
+
 # @brief check if the given command exists
 # @param $1 the command to check
 # @return 0 if the command exists, 1 otherwise
