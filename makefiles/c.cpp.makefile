@@ -24,10 +24,6 @@ DEPFLAGS= -MMD -MP
 LINK=g++
 LINKFLAGS= -static
 
-# program executable and the command to run it
-BINFILE=run.bin
-RUN=./run.bin
-
 # external libraries
 EXTERNAL_LIBS=
 
@@ -39,6 +35,10 @@ SRCDIR=./src
 RESDIR=./res
 LIBOBJDIR=./lib/obj
 LIBINCDIR=./lib/inc
+
+# program executable and the command to run it
+BINFILE=run.bin
+RUN=$(BINDIR)/$(BINFILE)
 
 # list of directories to initialize when running the 'init' target
 DIRS=$(BINDIR) $(OBJDIR) $(INCDIR) $(SRCDIR) $(RESDIR) $(LIBOBJDIR) $(LIBINCDIR)
